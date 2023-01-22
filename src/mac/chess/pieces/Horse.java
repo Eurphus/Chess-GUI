@@ -1,26 +1,23 @@
-package me.mac.chess.pieces;
+package mac.chess.pieces;
 
-// Chess File Imports
-
-import me.mac.chess.ChessPiece;
+import javafx.scene.image.Image;
+import mac.chess.ChessPiece;
+import mac.chess.Point;
 
 import java.util.ArrayList;
 
-import static me.mac.chess.data.rowList;
-
-public class king extends ChessPiece {
+public class Horse extends ChessPiece {
 
     // Constructor
-    public king(int inputRow, int inputColumn, boolean inputWhite) {
+    public Horse(int inputRow, int inputColumn, boolean inputWhite) {
         super(inputRow, inputColumn, inputWhite);
     }
 
-
-    public ArrayList<String> moveList(ChessPiece[][] board) {
-        ArrayList<String> moveList = new ArrayList<>();
+    public ArrayList<Point> moveList(ChessPiece[][] board) {
+        ArrayList<Point> moves = new ArrayList<>();
 
         // All possible moves. Formatted as {row difference, column difference}
-        int[][] combinations = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}, {1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
+        int[][] combinations = {{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}};
         int horizontal, vertical;
 
         // For each possible move (max 8 moves), goes through each one to see if it is possible
@@ -32,11 +29,11 @@ public class king extends ChessPiece {
             if (horizontal >= 1 && horizontal <= 8 && vertical >= 1 && vertical <= 8) {
 
                 // Check if surrounding tiles are enemy or empty
-                if (!this.isTeam(board[vertical][horizontal])) {
-                    moveList.add(rowList.get(horizontal) + vertical);
+                if (!isTeam(board[horizontal][vertical])) {
+                    moves.add(new Point(horizontal, vertical));
                 }
             }
         }
-        return moveList;
+        return moves;
     }
 }
