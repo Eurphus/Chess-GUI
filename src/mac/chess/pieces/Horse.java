@@ -1,6 +1,5 @@
 package mac.chess.pieces;
 
-import javafx.scene.image.Image;
 import mac.chess.ChessPiece;
 import mac.chess.Point;
 
@@ -8,7 +7,6 @@ import java.util.ArrayList;
 
 public class Horse extends ChessPiece {
 
-    // Constructor
     public Horse(int inputRow, int inputColumn, boolean inputWhite) {
         super(inputRow, inputColumn, inputWhite);
     }

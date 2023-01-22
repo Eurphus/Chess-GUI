@@ -1,6 +1,5 @@
 package mac.chess.pieces;
 
-import javafx.scene.image.Image;
 import mac.chess.ChessPiece;
 import mac.chess.Point;
 
@@ -11,7 +10,6 @@ public class Bishop extends ChessPiece {
         super(inputRow, inputColumn, inputWhite);
     }
 
-
     public ArrayList<Point> moveList(ChessPiece[][] board) {
         ArrayList<Point> moveList = new ArrayList<>();
 
@@ -21,7 +19,7 @@ public class Bishop extends ChessPiece {
         // {Down Right, Up Right, Down Left, Down Right}
 
         for (int i = 0; i < 4; i++) {
-            for (int j = 1; j <= 8; j++) {
+            for (int j = 1; j < 9; j++) {
                 // Increase or decrease the row by 1 every iteration
                 int x = row + rowDelta[i] * j;
 

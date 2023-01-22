@@ -1,11 +1,10 @@
 package mac.chess;
 
 import javafx.application.Application;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -13,15 +12,9 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
-import mac.chess.pieces.*;
 
-import java.io.IOException;
-import java.util.Arrays;
-
-import static mac.chess.Main.chessBoard;
-import static mac.chess.Main.currentTeam;
+import static mac.chess.Main.*;
 
 
 public class ChessMenu extends Application {
@@ -35,7 +28,7 @@ public class ChessMenu extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) {
 
         // Create board and values
         GridPane board = new GridPane();
@@ -72,7 +65,7 @@ public class ChessMenu extends Application {
                 tileSquare.heightProperty().bind(tileSquare.widthProperty());
 
                 // Determine colour of square
-                tileSquare.setFill((y + x) % 2 == 0 ? Color.WHITE : Color.GRAY);
+                tileSquare.setFill((y + x) % 2 == 0 ? Color.GRAY : Color.WHITE);
 
                 StackPane tile = new StackPane();
 
@@ -98,11 +91,11 @@ public class ChessMenu extends Application {
                     });
 
 
+                    // Helps enable dragging and helping it look a little nicer + verify
                     piece.setOnDragOver(event -> {
                         event.acceptTransferModes(TransferMode.MOVE);
                         event.consume();
                     });
-
                     piece.setOnDragDetected(event -> {
                         Dragboard db = piece.startDragAndDrop(TransferMode.MOVE);
                         ClipboardContent content = new ClipboardContent();
@@ -128,7 +121,7 @@ public class ChessMenu extends Application {
                     Dragboard db = event.getDragboard();
 
                     // If an image is currently stored in the dB, indicating an existing event
-                    if (db.hasImage()) {
+                    if (db.hasImage() && selectedPiece != null) {
                         // Find the original square
                         StackPane sourceSquare = (StackPane) selectedPiece.getParent();
 
@@ -141,8 +134,6 @@ public class ChessMenu extends Application {
 
                         // If the move is valid, then go ahead with it
                         if (chessBoard[originalX][originalY].isValid(newPoint, chessBoard)) {
-                            System.out.println("Activated\n\n");
-
                             // Remove the imageView from old tile
                             sourceSquare.getChildren().remove(selectedPiece);
 
@@ -153,12 +144,15 @@ public class ChessMenu extends Application {
 
                             // Add imageView to new tile
                             tile.getChildren().add(selectedPiece);
-                            System.out.println("Testt");
-                            // Tell the chessPiece it update its position
-                            chessBoard[originalX][originalY].updatePosition(newPoint, chessBoard, false);
-                            System.out.println("Test");
 
+                            // Tell the chessPiece to update its position
+                            chessBoard[originalX][originalY].updatePosition(newPoint, chessBoard, false);
+
+                            // Change Team
                             currentTeam = !currentTeam;
+
+                            // Check if the game is over
+                            gameOver();
 
                             // Reset the currently selected piece
                             selectedPiece = null;
@@ -213,5 +207,32 @@ public class ChessMenu extends Application {
 
         // Add the tile to the board
         board.add(tile, column, row);
+    }
+
+    // Make a pop-up when a winner is decided,
+    public void showWinner(String winner, String text) {
+        Stage winnerStage = new Stage();
+
+        // Create label indicating winner
+        Label winnerLabel = new Label(winner + " wins!");
+        winnerLabel.setStyle("-fx-font-size: 50px;");
+
+        // Create label for how they won
+        Label messageLabel = new Label(text);
+        messageLabel.setStyle("-fx-font-size: 30px;");
+
+        Button closeButton = new Button("Close");
+        closeButton.setOnAction(e -> winnerStage.close());
+
+        // Create a VBox layout to hold the labels on button
+        VBox vbox = new VBox(winnerLabel, messageLabel, closeButton);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setSpacing(30);
+
+
+        // Display the VBox
+        Scene popUp = new Scene(vbox, 600, 600);
+        winnerStage.setScene(popUp);
+        winnerStage.show();
     }
 }

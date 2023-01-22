@@ -1,6 +1,5 @@
 package mac.chess.pieces;
 
-// Java Imports
 import mac.chess.ChessPiece;
 import mac.chess.Point;
 
@@ -23,7 +22,7 @@ public class Pawn extends ChessPiece {
                 moves.add(new Point(row + 1, column));
             }
 
-            // Allowed to move forward 2 when on row 2
+            // Move down 2 rows when on row 2
             if (row == 2 && board[row + 2][column] == null) {
                 moves.add(new Point(4, column));
             }
@@ -43,7 +42,7 @@ public class Pawn extends ChessPiece {
                 moves.add(new Point(row - 1, column));
             }
 
-            // Allowed to move forward 2 when on row 2
+            // Move up 2 rows when on row 2
             if (row == 7 && board[row - 2][column] == null) {
                 moves.add(new Point(5, column));
             }

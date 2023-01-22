@@ -1,15 +1,11 @@
 package mac.chess.pieces;
 
-import javafx.scene.image.Image;
 import mac.chess.ChessPiece;
 import mac.chess.Point;
 
 import java.util.ArrayList;
 
 public class Castle extends ChessPiece {
-
-    Image icon;
-
     public Castle(int inputRow, int inputColumn, boolean inputWhite) {
         super(inputRow, inputColumn, inputWhite);
     }
@@ -24,7 +20,7 @@ public class Castle extends ChessPiece {
         // {Right, Left, Down, Up}
 
         for (int i = 0; i < 4; i++) {
-            for (int j = 1; j <= 8; j++) {
+            for (int j = 1; j < 9; j++) {
                 // Increase or decrease the row by 1 every iteration
                 int x = row + rowDelta[i] * j;
 

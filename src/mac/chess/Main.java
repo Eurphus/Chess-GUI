@@ -7,19 +7,15 @@ import mac.chess.pieces.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 public class Main {
 
     // True for white, false for black
-    public static boolean chosenTeam;
     public static boolean currentTeam = true;
-    public static boolean chosenWhite;
-
-    public int difficulty;
+    private static ChessMenu chess;
 
     // chessBoard Array. Keep in mind the array has padding for row 0 and column 0
-    public static ChessPiece[][] chessBoard = {
+    public static final ChessPiece[][] chessBoard = {
             {null, null, null, null, null, null, null, null, null, null},
             {null, new Castle(1, 1, true), new Horse(1, 2, true), new Bishop(1, 3, true), new Queen(1, 4, true), new King(1, 5, true), new Bishop(1, 6, true), new Horse(1, 7, true), new Castle(1, 8, true), null},
             {null, new Pawn(2, 1, true), new Pawn(2, 2, true), new Pawn(2, 3, true), new Pawn(2, 4, true), new Pawn(2, 5, true), new Pawn(2, 6, true), new Pawn(2, 7, true), new Pawn(2, 8, true), null},
@@ -30,27 +26,12 @@ public class Main {
             {null, new Pawn(7, 1, false), new Pawn(7, 2, false), new Pawn(7, 3, false), new Pawn(7, 4, false), new Pawn(7, 5, false), new Pawn(7, 6, false), new Pawn(7, 7, false), new Pawn(7, 8, false), null},
             {null, new Castle(8, 1, false), new Horse(8, 2, false), new Bishop(8, 3, false), new Queen(8, 4, false), new King(8, 5, false), new Bishop(8, 6, false), new Horse(8, 7, false), new Castle(8, 8, false), null}
     };
-    /*public static ChessPiece[][] chessBoard = {
-            {null, null, null, null, null, null, null, null, null, null},
-            {null, new King(1, 1, true), null, null, null, null, null, null, null, null},
-            {null, null, null, null, null, null, null, null, null, null},
-            {null, null, null, null, null, null, null, null, null, null},
-            {null, null, null, null, null, null, null, null, null, null},
-            {null, null, null, null, null, null, null, null, null, null},
-            {null, null, null, null, null, null, null, null, null, null},
-            {null, null, null, null, null, null, null, null, null, null},
-            {null, null, null, null, new Queen(8, 4, false), new King(8, 5, false), null, null, null}
-    };*/
 
 
     public static void main(String... args) {
 
-        Scanner scan = new Scanner(System.in);
-        int teamInt = -1;
-
-
         // Create new ChessBoard
-        ChessMenu chess = new ChessMenu();
+        chess = new ChessMenu();
 
         // Call the main method in class
         chess.main();
@@ -64,78 +45,160 @@ public class Main {
         for (int x = 1; x < 9; x++) {
             for (int y = 1; y < 9; y++) {
                 piece = tempBoard[x][y];
-                if(piece == null) continue;
+                if (piece == null) continue;
                 if (piece.white != inputWhite) continue;
                 allMoves.addAll(piece.moveList(tempBoard));
-                System.out.println(piece.getClass().getSimpleName() + ": " + piece.moveList(tempBoard));
             }
         }
-        System.out.println("Submitting");
         return allMoves;
     }
 
     public static boolean checkMateDetector(ChessPiece[][] board, boolean inputWhite) {
         ChessPiece[][] boardTemp;
-        List<Point> moveList = null;
+        List<Point> moveList;
 
         ChessPiece king = findKing(board, inputWhite);
 
         ChessPiece tempPiece;
+
+        // loops the array
         for (int x = 1; x < 9; x++) {
             for (int y = 1; y < 9; y++) {
+
+                // Skip if not the player piece
                 tempPiece = board[x][y];
                 if (tempPiece == null) continue;
                 if (tempPiece.white != inputWhite) continue;
-                moveList = tempPiece.moveList(board);
 
                 // Make a temporary copy of the current given board
-                boardTemp = Arrays.stream(board).map(ChessPiece[]::clone).toArray(ChessPiece[][]::new);
+                boardTemp = new ChessPiece[board.length][];
+                for (int i = 0; i < board.length; i++) {
+                    boardTemp[i] = Arrays.copyOf(board[i], board[i].length);
+                }
 
-                // Check if each move in the given moveList of the piece would change the check
+                // set moveList to the current piece moveList
+                moveList = tempPiece.moveList(boardTemp);
+
+                // For the current piece, simulate every move it can make it the temporary board
+                // If any of the moves stop the check, then return false.
                 for (Point p : moveList) {
-                    boardTemp[p.row][p.column] = tempPiece;
-                    boardTemp[x][y] = null;
+                    boardTemp[x][y].updatePosition(p, boardTemp, true);
+                    ArrayList<Point> enemyMoves = allMoves(boardTemp, !inputWhite);
 
-                    // If the tempPiece is the king, make the kingPosition update with every possible move for the king
-                    if (tempPiece.getClass().getSimpleName().equals("King")) {
-                        if (!allMoves(boardTemp, !inputWhite).contains(new Point(p.row, p.column))) {
+                    // If the temp piece is the king, see if the enemy move list contains any of the
+                    if (tempPiece instanceof King) {
+                        if (!enemyMoves.contains(p)) {
                             return false;
                         }
-
-                        // If the move successfully prevents chess, return that checkMake has not been detected, and reset the temporary board.
-                        if (!allMoves(boardTemp, !inputWhite).contains(new Point(king.row, king.column))) {
-                            return false;
-                        } else {
-                            // If the move does not successfully prevent chess, reset the board and retry.
-                            boardTemp = Arrays.stream(board).map(ChessPiece[]::clone).toArray(ChessPiece[][]::new);
-                        }
+                    }
+                    // Check if after the updated position, the enemyMoves still contain the king.
+                    else if (!enemyMoves.contains(king.getPoint())) {
+                        return false;
+                    }
+                    // If the move does not successfully prevent chess, reset the board and retry.
+                    boardTemp = new ChessPiece[board.length][];
+                    for (int i = 0; i < board.length; i++) {
+                        boardTemp[i] = Arrays.copyOf(board[i], board[i].length);
                     }
                 }
             }
         }
+
         // Return that checkMate has been detected unless proven otherwise with return false
+        return true;
+    }
+
+    public static boolean staleMateDetector(ChessPiece[][] board, boolean inputWhite) {
+        List<Point> moveList;
+
+        ChessPiece tempPiece;
+
+        // loops the array
+        for (int x = 1; x < 9; x++) {
+            for (int y = 1; y < 9; y++) {
+
+                // Skip if not the player piece
+                tempPiece = board[x][y];
+                if (tempPiece == null) continue;
+                if (tempPiece.white != inputWhite) continue;
+
+                // set moveList to the current piece moveList
+                moveList = tempPiece.moveList(board);
+
+                // If a move is possible without putting the king in check, then declare no stalemate
+                for (Point p : moveList) {
+                    if(tempPiece.isValid(p, board)) {
+                        return false;
+                    }
+                }
+            }
+        }
         return true;
     }
 
     public static ChessPiece findKing(ChessPiece[][] board, boolean inputWhite) {
         ChessPiece king = null;
+
         for (int x = 1; x < 9; x++) {
             for (int y = 1; y < 9; y++) {
-                if(board[x][y] instanceof King && board[x][y].white == inputWhite) king = board[x][y];
+                if (board[x][y] instanceof King && board[x][y].white == inputWhite) king = board[x][y];
             }
         }
         return king;
     }
 
-    public static ChessPiece[][] getCopy(ChessPiece[][] board) {
-        ChessPiece[][] newBoard = java.util.Arrays.stream(board).map(el -> el.clone()).toArray($ -> board.clone());
-
-        return newBoard;
-    }
-
-
-
+    // Detect if the game is over
+    // This is before the player moves
+    // If the game is over, the board will stay visible but lock up since no move is valid. This is intentional.
     public static void gameOver() {
-        System.out.println("Game over");
+        ChessPiece kingPiece = findKing(chessBoard, currentTeam);
+
+        //
+        // Stalemate detector
+        //
+        boolean stalemate = true;
+
+        // Check if the king is able to move
+        for (Point p : kingPiece.moveList(chessBoard)) {
+            if (kingPiece.isValid(p, chessBoard)) {
+                stalemate = false;
+            }
+        }
+
+        // If the king is unable to move, check if the rest of the pieces are able to move
+        if(stalemate) {
+            if(staleMateDetector(chessBoard, currentTeam)) {
+                chess.showWinner("No one", "Stalemate");
+            }
+        }
+
+        //
+        // Checkmate Detecting
+        //
+
+        ArrayList<Point> enemyMoves = allMoves(chessBoard, !currentTeam);
+
+        // Only run if the King is in check
+        if (enemyMoves.contains(kingPiece.getPoint())) {
+
+            // Check if king is unable to move due to check
+            boolean possible = false;
+            for (Point p : kingPiece.moveList(chessBoard)) {
+                if (kingPiece.isValid(p, chessBoard)) {
+                    possible = true;
+                }
+            }
+
+            // If the King is unable to move, then check for checkMate
+            if (!possible) {
+                if(checkMateDetector(chessBoard, currentTeam)) {
+                    if(currentTeam) {
+                        chess.showWinner("Black", "Checkmate");
+                    } else {
+                        chess.showWinner("White", "Checkmate");
+                    }
+                }
+            }
+        }
     }
 }

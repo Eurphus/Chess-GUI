@@ -1,6 +1,5 @@
 package mac.chess.pieces;
 
-// Chess File Imports
 import mac.chess.ChessPiece;
 import mac.chess.Point;
 
@@ -8,7 +7,6 @@ import java.util.ArrayList;
 
 public class King extends ChessPiece {
 
-    // Constructor
     public King(int inputRow, int inputColumn, boolean inputWhite) {
         super(inputRow, inputColumn, inputWhite);
     }
