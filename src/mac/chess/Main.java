@@ -167,7 +167,7 @@ public class Main {
 
         // If the king is unable to move, check if the rest of the pieces are able to move
         if(stalemate) {
-            if(staleMateDetector(chessBoard, currentTeam)) {
+            if(!staleMateDetector(chessBoard, currentTeam)) {
                 chess.showWinner("No one", "Stalemate");
             }
         }
