@@ -19,6 +19,7 @@ public class ChessPiece {
         white = inputWhite;
     }
 
+    // update position of whatever board provided
     public void updatePosition(Point newPoint, ChessPiece[][] board, boolean copy) {
         // Define piece based off the original board, or of a copy
         ChessPiece piece = copy ? (ChessPiece) board[this.row][this.column].clone() : board[this.row][this.column];
@@ -80,10 +81,12 @@ public class ChessPiece {
         return new Image(Objects.requireNonNull(getClass().getResource("/" + name + ".png")).toExternalForm());
     }
 
+    // Return row and column as point
     public Point getPoint() {
         return new Point(this.row, this.column);
     }
 
+    // Override method to make a new way of cloning chessPieces, required for simulated moves
     public Object clone() {
         try {
             return this.getClass().getConstructors()[0].newInstance(this.row, this.column, this.white);
@@ -91,8 +94,5 @@ public class ChessPiece {
             e.printStackTrace();
             return null;
         }
-    }
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

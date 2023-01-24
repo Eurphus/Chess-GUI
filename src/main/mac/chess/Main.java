@@ -154,25 +154,6 @@ public class Main {
         ChessPiece kingPiece = findKing(chessBoard, currentTeam);
 
         //
-        // Stalemate detector
-        //
-        boolean stalemate = true;
-
-        // Check if the king is able to move
-        for (Point p : kingPiece.moveList(chessBoard)) {
-            if (kingPiece.isValid(p, chessBoard)) {
-                stalemate = false;
-            }
-        }
-
-        // If the king is unable to move, check if the rest of the pieces are able to move
-        if(stalemate) {
-            if(!staleMateDetector(chessBoard, currentTeam)) {
-                chess.showWinner("No one", "Stalemate");
-            }
-        }
-
-        //
         // Checkmate Detecting
         //
 
@@ -194,10 +175,31 @@ public class Main {
                 if(checkMateDetector(chessBoard, currentTeam)) {
                     if(currentTeam) {
                         chess.showWinner("Black", "Checkmate");
+                        return;
                     } else {
                         chess.showWinner("White", "Checkmate");
+                        return;
                     }
                 }
+            }
+        }
+
+        //
+        // Stalemate detector
+        //
+        boolean stalemate = true;
+
+        // Check if the king is able to move
+        for (Point p : kingPiece.moveList(chessBoard)) {
+            if (kingPiece.isValid(p, chessBoard)) {
+                stalemate = false;
+            }
+        }
+
+        // If the king is unable to move, check if the rest of the pieces are able to move
+        if(stalemate) {
+            if(staleMateDetector(chessBoard, currentTeam)) {
+                chess.showWinner("No one", "Stalemate");
             }
         }
     }
