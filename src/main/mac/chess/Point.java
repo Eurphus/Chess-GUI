@@ -13,7 +13,7 @@ public class Point {
 
     @Override
     public boolean equals(Object object) {
-        boolean isEqual= false;
+        boolean isEqual = false;
 
         if (object instanceof Point) {
             isEqual = (this.row == ((Point) object).row) && (this.column == ((Point) object).column);
